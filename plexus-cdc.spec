@@ -43,13 +43,11 @@
 
 Name:           plexus-cdc
 Version:        1.0
-Release:        %mkrel 0.a4.3.0.0
+Release:        %mkrel 0.a4.3.0.1
 Epoch:          0
 Summary:        Plexus Component Descriptor Creator
 License:        Apache Software License
 Group:          Development/Java
-Vendor:         JPackage Project
-Distribution:   JPackage
 URL:            http://plexus.codehaus.org/
 Source0:        %{name}-src.tar.gz
 # svn export svn://svn.plexus.codehaus.org/plexus/tags/plexus-cdc-1.0-alpha-4 plexus-cdc
@@ -104,7 +102,7 @@ is like a J2EE application server, without all the baggage.
 
 %package javadoc
 Summary:        Javadoc for %{name}
-Group:          Development/Documentation
+Group:          Development/Java
 Requires(post):   /bin/rm,/bin/ln
 Requires(postun): /bin/rm
 
