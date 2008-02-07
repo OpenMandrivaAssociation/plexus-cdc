@@ -43,14 +43,14 @@
 
 Name:           plexus-cdc
 Version:        1.0
-Release:        %mkrel 0.a4.3.0.1
+Release:        %mkrel 0.a10.1.0.1
 Epoch:          0
 Summary:        Plexus Component Descriptor Creator
 License:        Apache Software License
 Group:          Development/Java
 URL:            http://plexus.codehaus.org/
 Source0:        %{name}-src.tar.gz
-# svn export svn://svn.plexus.codehaus.org/plexus/tags/plexus-cdc-1.0-alpha-4 plexus-cdc
+# svn export http://svn.plexus.codehaus.org/plexus/tags/plexus-cdc-1.0-alpha-10 plexus-cdc
 
 Source1:                %{name}-jpp-depmap.xml
 Source2:                %{name}-%{version}-build.xml
