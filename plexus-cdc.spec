@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2007, JPackage Project
+# Copyright (c) 2000-2005, JPackage Project
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,67 +27,49 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-%define _with_gcj_support 1
-%define gcj_support %{?_with_gcj_support:1}%{!?_with_gcj_support:%{?_without_gcj_support:0}%{!?_without_gcj_support:%{?_gcj_support:%{_gcj_support}}%{!?_gcj_support:0}}}
 
-# If you don't want to build with maven, and use straight ant instead,
-# give rpmbuild option '--without maven'
+%global parent plexus
 
-%define with_maven %{!?_without_maven:1}%{?_without_maven:0}
-%define without_maven %{?_without_maven:1}%{!?_without_maven:0}
+%global subname cdc
 
-%define section     free
+%global maven_settings_file %{_builddir}/%{name}/settings.xml
 
-%define parent plexus
-%define subname cdc
-
-Name:           plexus-cdc
+Name:           %{parent}-%{subname}
 Version:        1.0
-Release:        %mkrel 0.a10.1.0.1
-Epoch:          0
+Release:        0.9.a14
 Summary:        Plexus Component Descriptor Creator
-License:        Apache Software License
+License:        MIT
 Group:          Development/Java
 URL:            http://plexus.codehaus.org/
-Source0:        %{name}-src.tar.gz
-# svn export http://svn.plexus.codehaus.org/plexus/tags/plexus-cdc-1.0-alpha-10 plexus-cdc
+# svn export -r 7728 http://svn.codehaus.org/plexus/archive/plexus-tools/tags/plexus-tools-1.0.11/plexus-cdc plexus-cdc
+# tar czf plexus-cdc-1.0-alpha-14.tar.gz plexus-cdc/
+Source0:        %{name}-1.0-alpha-14.tar.gz
+Source1:	%{name}-jpp-depmap.xml
+Patch0:     %{name}-qdox-1.9.patch
 
-Source1:                %{name}-jpp-depmap.xml
-Source2:                %{name}-%{version}-build.xml
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-
-%if ! %{gcj_support}
 BuildArch:      noarch
-%endif
-BuildRequires:  java-rpmbuild
-BuildRequires:  jpackage-utils >= 0:1.7.2
-BuildRequires:  ant >= 0:1.6
-%if %{with_maven}
-BuildRequires:  maven2 >= 2.0.4-9
-BuildRequires:  maven2-plugin-compiler
-BuildRequires:  maven2-plugin-install
-BuildRequires:  maven2-plugin-jar
-BuildRequires:  maven2-plugin-javadoc
-BuildRequires:  maven2-plugin-release
-BuildRequires:  maven2-plugin-resources
-BuildRequires:  maven2-plugin-surefire
-BuildRequires:  maven2-common-poms >= 1.0
-%endif
-BuildRequires:  classworlds
-BuildRequires:  jdom
-BuildRequires:  plexus-container-default
-BuildRequires:  plexus-utils
-BuildRequires:  qdox
-%if %{gcj_support}
-BuildRequires:    java-gcj-compat-devel
-%endif
 
-Requires:       jdom
-Requires:       maven2-common-poms >= 1.0
-Requires:       plexus-container-default
-Requires:       plexus-utils
-Requires:       qdox
+BuildRequires:  jpackage-utils >= 0:1.7.2
+BuildRequires:	maven2
+BuildRequires:	maven-compiler-plugin
+BuildRequires:	maven-install-plugin
+BuildRequires:	maven-jar-plugin
+BuildRequires:	maven-javadoc-plugin
+BuildRequires:	maven-resources-plugin
+BuildRequires:	maven-surefire-maven-plugin
+BuildRequires:	maven2-common-poms >= 1.0
+BuildRequires:	jdom
+BuildRequires:	plexus-container-default
+BuildRequires:	plexus-utils
+BuildRequires:  maven-doxia-sitetools
+BuildRequires:	qdox
+Requires:		jdom
+Requires:		maven2-common-poms >= 1.0
+Requires:		plexus-container-default
+Requires:		plexus-utils
+Requires:		qdox
 
 Requires(post):    jpackage-utils >= 0:1.7.2
 Requires(postun):  jpackage-utils >= 0:1.7.2
@@ -103,97 +85,69 @@ is like a J2EE application server, without all the baggage.
 %package javadoc
 Summary:        Javadoc for %{name}
 Group:          Development/Java
-Requires(post):   /bin/rm,/bin/ln
-Requires(postun): /bin/rm
 
 %description javadoc
 Javadoc for %{name}.
 
 %prep
 %setup -q -n %{name}
-cp %{SOURCE2} build.xml
-mv src/test/resources src/test/java
-mkdir src/test/resources
+
+#mkdir external_repo
+#ln -s %{_javadir} external_repo/JPP
+%patch0 -p1
+
 
 %build
-%if %{with_maven}
-mkdir external_repo
-ln -s %{_javadir} external_repo/JPP
 
 export MAVEN_REPO_LOCAL=$(pwd)/.m2/repository
 mkdir -p $MAVEN_REPO_LOCAL
 
 mvn-jpp \
         -e \
-        -Dmaven2.jpp.depmap.file=%{SOURCE1} \
         -Dmaven.repo.local=$MAVEN_REPO_LOCAL \
+        -Dmaven.test.skip=true \
         install javadoc:javadoc
-%else
-mkdir -p target/lib
-build-jar-repository -s -p target/lib \
-classworlds \
-jdom \
-plexus/container-default \
-plexus/utils \
-qdox \
 
-ant jar javadoc
-
-%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
 # jars
 install -d -m 755 $RPM_BUILD_ROOT%{_javadir}/plexus
 install -pm 644 target/*.jar \
-          $RPM_BUILD_ROOT%{_javadir}/%{parent}/%{subname}-%{version}.jar
-%add_to_maven_depmap org.codehaus.plexus %{name} 1.0-alpha-4 JPP/%{parent} %{subname}
+	  $RPM_BUILD_ROOT%{_javadir}/%{parent}/%{subname}-%{version}.jar
+%add_to_maven_depmap org.codehaus.plexus %{name} 1.0-alpha-14 JPP/%{parent} %{subname}
 
-(cd $RPM_BUILD_ROOT%{_javadir}/%{parent} && for jar in *-%{version}*; do ln -sf ${jar} `echo $jar| sed  "s|-%{version}||g"`; done)
+(cd $RPM_BUILD_ROOT%{_javadir}/%{parent} && for jar in *-%{version}*; \
+  do ln -sf ${jar} `echo $jar| sed  "s|-%{version}||g"`; done)
 
 # pom
-install -d -m 755 $RPM_BUILD_ROOT%{_datadir}/maven2/poms
-install -pm 644 pom.xml $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.%{parent}-%{subname}.pom
+install -Dpm 644 pom.xml $RPM_BUILD_ROOT%{_mavenpomdir}/JPP.%{parent}-%{subname}.pom
 
 # javadoc
 install -d -m 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
 
 cp -pr target/site/apidocs/* \
-                $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/
+		$RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/
 
-ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name}
-
-%if %{gcj_support}
-%{_bindir}/aot-compile-rpm
-%endif
+ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name} # ghost symlink
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
 %update_maven_depmap
-%if %{gcj_support}
-%update_gcjdb
-%endif
 
 %postun
 %update_maven_depmap
-%if %{gcj_support}
-%clean_gcjdb
-%endif
 
 %files
 %defattr(-,root,root,-)
 %{_javadir}/plexus
-%{_datadir}/maven2
-%{_mavendepmapfragdir}
-%{_mavendepmapfragdir}
-%if %{gcj_support}
-%dir %attr(-,root,root) %{_libdir}/gcj/%{name}
-%attr(-,root,root) %{_libdir}/gcj/%{name}/%{subname}*-%{version}.jar.*
-%endif
+%{_mavenpomdir}/*
+%{_mavendepmapfragdir}/*
+%config(noreplace) /etc/maven/fragments/plexus-cdc
 
 %files javadoc
 %defattr(-,root,root,-)
-%doc %{_javadocdir}/%{name}-%{version}
-%doc %{_javadocdir}/%{name}
+%doc %{_javadocdir}/*
+
