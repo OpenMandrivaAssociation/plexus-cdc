@@ -35,7 +35,7 @@
 
 Name:           %{parent}-%{subname}
 Version:        1.0
-Release:        0.19.a14.0%{?dist}
+Release:        0.19.a14.1%{?dist}
 Epoch:          0
 Summary:        Plexus Component Descriptor Creator
 # Almost whole gleaner subpackage is ASL 2.0
@@ -54,7 +54,7 @@ BuildArch:      noarch
 BuildRequires:  jpackage-utils >= 0:1.7.2
 BuildRequires:  maven-local
 BuildRequires:  maven-compiler-plugin
-#BuildRequires:  maven-install-plugin
+BuildRequires:  maven-install-plugin
 BuildRequires:  maven-jar-plugin
 BuildRequires:  maven-javadoc-plugin
 BuildRequires:  maven-resources-plugin
