@@ -1,4 +1,4 @@
-%{_javapackages_macros:%_javapackages_macros}
+%{?_javapackages_macros:%_javapackages_macros}
 # Copyright (c) 2000-2005, JPackage Project
 # All rights reserved.
 #
