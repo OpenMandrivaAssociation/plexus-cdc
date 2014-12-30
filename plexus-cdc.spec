@@ -35,9 +35,10 @@
 
 Name:           %{parent}-%{subname}
 Version:        1.0
-Release:        0.19.a14.1%{?dist}
+Release:        0.23.a14.1
 Epoch:          0
 Summary:        Plexus Component Descriptor Creator
+Group:          Development/Java
 # Almost whole gleaner subpackage is ASL 2.0
 License:        MIT and ASL 2.0
 
@@ -47,7 +48,7 @@ URL:            http://plexus.codehaus.org/
 Source0:        %{name}-1.0-alpha-14.tar.gz
 Source1:        %{name}-jpp-depmap.xml
 Source2:        http://www.apache.org/licenses/LICENSE-2.0.txt
-Patch0:         %{name}-qdox-1.9.patch
+Patch0:         0001-Port-to-QDox-2.0.patch
 
 BuildArch:      noarch
 
@@ -94,7 +95,7 @@ cp -p %{SOURCE2} .
 %mvn_install
 %if 0%{?fedora}
 %else
-sed -i 's|1.0-alpha-14|1.0.alpha.14|;' %{buildroot}%{_mavendepmapfragdir}/*.xml
+sed -i 's|1.0-alpha-14|1.0.alpha.14|;' %{buildroot}%{_datadir}/maven-metadata/*
 %endif
 
 %files -f .mfiles
