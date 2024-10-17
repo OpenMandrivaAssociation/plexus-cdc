@@ -42,7 +42,7 @@ Group:          Development/Java
 # Almost whole gleaner subpackage is ASL 2.0
 License:        MIT and ASL 2.0
 
-URL:            http://plexus.codehaus.org/
+URL:            https://plexus.codehaus.org/
 # svn export -r 7728 http://svn.codehaus.org/plexus/archive/plexus-tools/tags/plexus-tools-1.0.11/plexus-cdc plexus-cdc
 # tar czf plexus-cdc-1.0-alpha-14.tar.gz plexus-cdc/
 Source0:        %{name}-1.0-alpha-14.tar.gz
